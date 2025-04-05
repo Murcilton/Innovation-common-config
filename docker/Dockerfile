@@ -48,13 +48,21 @@ RUN curl -sS https://getcomposer.org/installer | php -- \
     --install-dir=/usr/local/bin
 
 # Устанавливаем openswoole
-RUN pecl install openswoole && docker-php-ext-enable openswoole
+RUN pecl install openswoole \
+    && docker-php-ext-enable openswoole
 
 # Устанавливаем PostgreSQL клиент
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - && \
     sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(. /etc/os-release; echo $VERSION_CODENAME)-pgdg main" > /etc/apt/sources.list.d/pgdg.list' && \
     apt-get update && \
     apt-get install -y postgresql-client-17
+
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y nodejs \
+    npm                       # note this one
+RUN npm install --save-dev chokidar
+
+RUN apt-get update && apt-get install -y procps
 
 # Копируем PHP конфигурации
 COPY ./docker/php/php.ini /usr/local/etc/php/conf.d/php.ini
